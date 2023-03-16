@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import './answer.dart';
-import './question.dart';
+import './result.dart';
+import './quiz.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,49 +15,75 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  var _questionIndex = 0;
+  final _questions = const [
+    {
+      'questionText': 'Pick a color',
+      'answers': [
+        {'text': 'Black', 'score': 10},
+        {'text': 'Red', 'score': 6},
+        {'text': 'Green', 'score': 3},
+        {'text': 'White', 'score': 1},
+      ],
+    },
+    {
+      'questionText': 'Pick an animal',
+      'answers': [
+        {'text': 'Rabbit', 'score': 1},
+        {'text': 'Snake', 'score': 10},
+        {'text': 'Elephant', 'score': 3},
+        {'text': 'Lion', 'score': 6},
+      ],
+    },
+    {
+      'questionText': 'Pick an element',
+      'answers': [
+        {'text': 'Fire', 'score': 10},
+        {'text': 'Water', 'score': 6},
+        {'text': 'Earth', 'score': 3},
+        {'text': 'Air', 'score': 1},
+      ]
+    },
+  ];
 
-  void _answerQuestion() {
+  var _questionIndex = 0;
+  var _totalScore = 0;
+
+  void _resetQuiz() {
+    setState(() {
+      _questionIndex = 0;
+      _totalScore = 0;
+    });
+  }
+
+  void _answerQuestion(int score) {
     // method provided by State that takes a function that changes property of code
+
+    _totalScore += score;
+
     setState(() {
       _questionIndex = _questionIndex + 1;
     });
     print(_questionIndex);
+
+    if (_questionIndex < _questions.length) {
+      print('We have more questions!');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    const questions = const [
-      {
-        'questionText': 'Pick a color',
-        'answers': ['Black', 'Red', 'Green', 'White'],
-      },
-      {
-        'questionText': 'Pick an animal',
-        'answers': ['Rabbit', 'Snake', 'Elephant', 'Lion'],
-      },
-      {
-        'questionText': 'Who is your favorite person?',
-        'answers': ['Daph', 'Daph', 'Daph', 'Daph'],
-      },
-    ];
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           title: Text('My First App'),
         ),
-        body: Column(
-          children: [
-            Question(
-              questions[_questionIndex]['questionText'],
-            ),
-            // spread operator takes a list and pulls all values inside so we don't have a list within a list, but values within a list (not nested list)
-            // tell dart answers is a list of strings
-            ...(questions[_questionIndex]['answers'] as List<String>).map((answer) {
-              return Answer(_answerQuestion, answer);
-            }).toList()
-          ],
-        ),
+        body: _questionIndex < _questions.length
+            ? Quiz(
+                answerQuestion: _answerQuestion,
+                questionIndex: _questionIndex,
+                questions: _questions,
+              )
+            : Result(_totalScore, _resetQuiz),
       ),
     );
   }
